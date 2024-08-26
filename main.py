@@ -4,6 +4,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from datetime import datetime, timedelta
 import jwt
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -34,7 +35,7 @@ class VerificationRequest(BaseModel):
     code: str
 
 class ModifyRequest(BaseModel):
-    new_data: dict
+    new_data: str
     token: str
 
 # 校验码验证函数
@@ -65,10 +66,15 @@ def verify_code_endpoint(request: VerificationRequest):
     token = create_token()
     return {"message": "Verification successful", "token": token}
 
-@app.post("/modify-data")
+@app.post("/modify_data")
 def modify_data(request: ModifyRequest):
     decode_token(request.token)
-    # 此处执行数据修改的逻辑
-    return {"message": "Data modified successfully", "new_data": request.new_data}
-
+    # 执行数据修改的逻辑
+    response_content = {
+        "status_code": 200,
+        "success": True,
+        "message": "Data modified successfully",
+        "new_data": request.new_data
+    }
+    return JSONResponse(content=response_content, status_code=200)
 # 启动命令：uvicorn main:app --reload
